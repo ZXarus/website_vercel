@@ -532,7 +532,7 @@ export default function HomePage() {
                           />
                         </div>
                       ) : (
-                        filteredProperties.slice(0, 3).map((property) => (
+                        properties.slice(0, 3).map((property) => (
                           <div key={property.id} id={`property-${property.id}`}>
                             <PropertyCard
                               property={property}
@@ -562,12 +562,12 @@ export default function HomePage() {
               <TabsContent value="list" className="mt-0">
                 <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                   {loading
-                    ? Array(8)
+                    ? Array(20)
                         .fill(0)
                         .map((_, i) => (
                           <div key={i} className="h-[300px] rounded-lg border bg-muted animate-pulse"></div>
                         ))
-                    : filteredProperties.slice(0, 12).map((property) => (
+                    : properties.slice(0, 20).map((property) => (
                         <div key={property.id} id={`property-${property.id}`}>
                           <PropertyCard
                             property={property}
