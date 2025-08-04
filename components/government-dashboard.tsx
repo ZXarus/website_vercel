@@ -256,28 +256,6 @@ export default function GovernmentDashboard() {
                     </Button>
                   ))}
                 </div>
-                {/* Mobile Gyroscope Control */}
-                {typeof window !== "undefined" &&
-                  /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) && (
-                    <div className="flex justify-center mb-4">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => {
-                          if (typeof DeviceOrientationEvent.requestPermission === "function") {
-                            DeviceOrientationEvent.requestPermission().then((response) => {
-                              if (response === "granted") {
-                                // Gyroscope enabled
-                              }
-                            })
-                          }
-                        }}
-                        className="border-white/30 text-white bg-transparent hover:bg-white/20 hover:border-white/60"
-                      >
-                        {"\uD83D\uDCDD"} Enable Gyroscope Control
-                      </Button>
-                    </div>
-                  )}
                 {/* Map Container */}
                 <div
                   ref={mapRef}

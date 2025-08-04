@@ -189,8 +189,8 @@ export async function fetchNYCProperties() {
     // Adjust price based on property details
     const currentPrice = basePrice + bedrooms * 100000 + bathrooms * 50000 + sqft * 500
 
-    // Generate price change (between -20% and +25%)
-    const priceChangePercent = Math.random() * 45 - 20
+    // Generate price change (between +1% and +25% - all positive)
+    const priceChangePercent = Math.random() * 24 + 1
     const priceChange = currentPrice * (priceChangePercent / 100)
     const predictedPrice = currentPrice + priceChange
 
