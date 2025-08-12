@@ -41,50 +41,19 @@ export default function CesiumMap({ properties }: CesiumMapProps) {
       document.head.appendChild(cesiumStyles)
 
       cesiumScript.onload = () => {
-        // Set the Cesium Ion Access Token
-        window.Cesium.Ion.defaultAccessToken =
-          process.env.NEXT_PUBLIC_CESIUM_ION_TOKEN ||
-          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiIyNDA5OGFmMy02MGI1LTQwN2UtYjI4Ny05MzczZmVkNmVkYTEiLCJpZCI6MzIyOTM1LCJpYXQiOjE3NTI5MDcwODF9.7QikdcokptmOFrMTFryHFMaX-FmzCQfipcbDl1JJGGE"
+        // IMPORTANT: Add your Cesium Ion Access Token as an environment variable
+        // Create a .env.local file and add: NEXT_PUBLIC_CESIUM_ION_TOKEN=your_token_here
+        window.Cesium.Ion.defaultAccessToken = process.env.NEXT_PUBLIC_CESIUM_ION_TOKEN || ""
 
         const viewer = new window.Cesium.Viewer(mapContainerRef.current!, {
           terrain: window.Cesium.Terrain.fromWorldTerrain(),
           infoBox: true,
           selectionIndicator: true,
           shouldAnimate: true,
-          homeButton: true,
-          sceneModePicker: true,
-          baseLayerPicker: true,
-          navigationHelpButton: true,
-          animation: false,
-          timeline: false,
-          fullscreenButton: true,
-          vrButton: false,
-          // Enable high-resolution globe
-          requestRenderMode: false,
-          maximumRenderTimeChange: Number.POSITIVE_INFINITY,
         })
 
-        // Add high-resolution 3D buildings for detailed zooming
+        // Add 3D buildings
         viewer.scene.primitives.add(window.Cesium.createOsmBuildings())
-
-        // Configure camera for detailed zooming capabilities
-        viewer.scene.screenSpaceCameraController.minimumZoomDistance = 1.0
-        viewer.scene.screenSpaceCameraController.maximumZoomDistance = 50000000.0
-
-        // Enable high-quality rendering for detailed views
-        viewer.scene.globe.enableLighting = true
-        viewer.scene.globe.dynamicAtmosphereLighting = true
-        viewer.scene.globe.dynamicAtmosphereLightingFromSun = true
-
-        // Set initial camera position to show NYC area with good detail level
-        viewer.camera.setView({
-          destination: window.Cesium.Cartesian3.fromDegrees(-74.006, 40.7128, 50000), // NYC coordinates with altitude
-          orientation: {
-            heading: window.Cesium.Math.toRadians(0.0),
-            pitch: window.Cesium.Math.toRadians(-45.0),
-            roll: 0.0,
-          },
-        })
 
         // Store the viewer instance
         viewerRef.current = viewer
@@ -140,25 +109,11 @@ export default function CesiumMap({ properties }: CesiumMapProps) {
         name: title,
         position: window.Cesium.Cartesian3.fromDegrees(longitude, latitude),
         point: {
-          pixelSize: 15,
+          pixelSize: 12,
           color: getMarkerColor(priceChangePercent),
           outlineColor: window.Cesium.Color.WHITE,
-          outlineWidth: 3,
-          heightReference: window.Cesium.HeightReference.CLAMP_TO_GROUND,
-          // Enhanced scaling for detailed zoom levels
-          scaleByDistance: new window.Cesium.NearFarScalar(1.5e2, 2.0, 1.5e7, 0.5),
-          translucencyByDistance: new window.Cesium.NearFarScalar(1.5e2, 1.0, 1.5e7, 0.3),
-        },
-        label: {
-          text: `$${Math.round(predictedPrice / 1000)}K`,
-          font: "14pt sans-serif",
-          fillColor: window.Cesium.Color.WHITE,
-          outlineColor: window.Cesium.Color.BLACK,
           outlineWidth: 2,
-          style: window.Cesium.LabelStyle.FILL_AND_OUTLINE,
-          pixelOffset: new window.Cesium.Cartesian2(0, -40),
-          // Enhanced label scaling for detailed views
-          scaleByDistance: new window.Cesium.NearFarScalar(1.5e2, 1.5, 1.5e7, 0.3),
+          translucencyByDistance: new window.Cesium.NearFarScalar(1.5e2, 1.0, 1.5e7, 0.2),
         },
         description: description,
       })
