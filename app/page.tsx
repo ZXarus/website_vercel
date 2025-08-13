@@ -14,6 +14,8 @@ import { Badge } from "@/components/ui/badge"
 import { fetchNYCProperties } from "@/data/nyc-properties"
 import { useRouter } from "next/navigation"
 import GovernmentDashboard from "@/components/government-dashboard"
+import Link from "next/link"
+import { Button } from "@/components/ui/button"
 
 // This component preloads bathroom images for better performance
 function ImagePreloader() {
@@ -313,9 +315,11 @@ export default function HomePage() {
               Calculate ROI
             </Button>
 
-            <Button size="sm" className="gap-1">
+            <Link href="/signin.html" passHref>
+              <Button size="sm" className="gap-1">
               Sign In
-            </Button>
+              </Button>
+            </Link>
           </div>
 
           {/* Mobile Menu */}
