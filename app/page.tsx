@@ -316,7 +316,6 @@ export default function HomePage() {
             <Link href="/signin">
               <Button size="sm" className="gap-1">Sign In</Button>
             </Link>
-          </div>
 
           {/* Mobile Menu */}
           <Sheet>
