@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { useState, useEffect, useCallback } from "react"
 import { Filter, Search, Calculator, Menu, ArrowUpDown, BarChart2, Scale } from "lucide-react"
@@ -14,8 +14,6 @@ import { Badge } from "@/components/ui/badge"
 import { fetchNYCProperties } from "@/data/nyc-properties"
 import { useRouter } from "next/navigation"
 import GovernmentDashboard from "@/components/government-dashboard"
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
 
 // This component preloads bathroom images for better performance
 function ImagePreloader() {
@@ -315,10 +313,8 @@ export default function HomePage() {
               Calculate ROI
             </Button>
 
-            <Link href="/signin.html" passHref>
-              <Button size="sm" className="gap-1">
-              Sign In
-              </Button>
+            <Link href="/signin">
+              <Button size="sm" className="gap-1">Sign In</Button>
             </Link>
           </div>
 
