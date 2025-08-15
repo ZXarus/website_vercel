@@ -15,6 +15,16 @@ import { fetchNYCProperties } from "@/data/nyc-properties"
 import { useRouter } from "next/navigation"
 import GovernmentDashboard from "@/components/government-dashboard"
 
+type Property = {
+  id: string
+  title: string
+  address: string
+  currentPrice: number
+  priceChangePercent: number
+  images?: string[]
+}
+
+
 // This component preloads bathroom images for better performance
 function ImagePreloader() {
   useEffect(() => {
@@ -33,18 +43,19 @@ function ImagePreloader() {
 }
 
 export default function HomePage() {
-  const [properties, setProperties] = useState([])
-  const [filteredProperties, setFilteredProperties] = useState([])
-  const [selectedProperty, setSelectedProperty] = useState(null)
+  const [properties, setProperties] = useState<Property[]>([])
+  const [filteredProperties, setFilteredProperties] = useState<Property[]>([])
+  const [selectedProperty, setSelectedProperty] = useState<Property | null>(null)
   const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState("")
   const [priceFilter, setPriceFilter] = useState("any")
   const [changeFilter, setChangeFilter] = useState("any")
   const [sortBy, setSortBy] = useState("priceChangeDesc")
-  const [comparisonList, setComparisonList] = useState([])
+  const [comparisonList, setComparisonList] = useState<Property[]>([])
   const router = useRouter()
-  const [favorites, setFavorites] = useState([])
+  const [favorites, setFavorites] = useState<string[]>([])
   const [currentMode, setCurrentMode] = useState<"investor" | "government">("investor")
+
 
   // Load properties on component mount
   useEffect(() => {
@@ -184,40 +195,34 @@ export default function HomePage() {
 
   // Toggle property in comparison list
   const togglePropertyComparison = useCallback((property: any) => {
-    setComparisonList((current) => {
-      // If property is already in the list, remove it
-      if (current.some((p) => p.id === property.id)) {
-        const newList = current.filter((p) => p.id !== property.id)
-
-        // Update localStorage
-        try {
-          localStorage.setItem("comparisonList", JSON.stringify(newList))
-        } catch (e) {
-          console.error("Failed to update localStorage", e)
-        }
-
-        return newList
-      }
-
-      // Otherwise add it (up to 4 properties)
-      let newList
-      if (current.length < 4) {
-        newList = [...current, property]
-      } else {
-        // If already at 4 properties, replace the oldest one
-        newList = [...current.slice(1), property]
-      }
-
-      // Update localStorage
+  setComparisonList((current) => {
+    if (current.some((p) => p.id === property.id)) {
+      const newList = current.filter((p) => p.id !== property.id)
       try {
         localStorage.setItem("comparisonList", JSON.stringify(newList))
       } catch (e) {
         console.error("Failed to update localStorage", e)
       }
-
       return newList
-    })
-  }, [])
+    }
+
+    let newList
+    if (current.length < 4) {
+      newList = [...current, property]
+    } else {
+      newList = [...current.slice(1), property]
+    }
+
+    try {
+      localStorage.setItem("comparisonList", JSON.stringify(newList))
+    } catch (e) {
+      console.error("Failed to update localStorage", e)
+    }
+
+    return newList // ✅ This was missing
+  })
+}, [])
+
 
   const isInComparisonList = useCallback(
     (propertyId: string) => {
@@ -655,5 +660,8 @@ export default function HomePage() {
         </div>
       </footer>
     </div>
-  )
+    
+  );
 }
+
+
