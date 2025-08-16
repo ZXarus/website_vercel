@@ -49,30 +49,6 @@ export async function fetchNYCProperties() {
     "Eastern Parkway",
   ]
 
-  // Predefined exterior images for first 20 properties
-  const exteriorImages = [
-    "/images/property-1-exterior.png",
-    "/images/property-2-exterior.png",
-    "/images/property-3-exterior.png",
-    "/images/property-4-exterior.png",
-    "/images/property-5-exterior.png",
-    "/images/property-6-exterior.png",
-    "/images/property-7-exterior.png",
-    "/images/property-8-exterior.png",
-    "/images/property-9-exterior.png",
-    "/images/property-10-exterior.png",
-    "/images/property-11-exterior.png",
-    "/images/property-12-exterior.png",
-    "/images/property-13-exterior.png",
-    "/images/property-14-exterior.png",
-    "/images/property-15-exterior.png",
-    "/images/property-16-exterior.png",
-    "/images/property-17-exterior.png",
-    "/images/property-18-exterior.png",
-    "/images/property-19-exterior.png",
-    "/images/property-20-exterior.png",
-  ]
-
   // Generate a unique seed for each property to ensure consistent but varied images
   const generateSeed = (propertyId, suffix = "") => {
     return `${propertyId}${suffix}`
@@ -189,8 +165,8 @@ export async function fetchNYCProperties() {
     // Adjust price based on property details
     const currentPrice = basePrice + bedrooms * 100000 + bathrooms * 50000 + sqft * 500
 
-    // Generate price change (between +1% and +25% - all positive)
-    const priceChangePercent = Math.random() * 24 + 1
+    // Generate price change (between -20% and +25%)
+    const priceChangePercent = Math.random() * 45 - 20
     const priceChange = currentPrice * (priceChangePercent / 100)
     const predictedPrice = currentPrice + priceChange
 
@@ -228,32 +204,19 @@ export async function fetchNYCProperties() {
     }
 
     // Generate unique images for this property
-    let propertyExteriorImages = []
-    let interiorImages = []
-    let bedroomImages = []
+    const exteriorImages = [
+      generateImageUrl(property, "exterior", 1),
+      generateImageUrl(property, "exterior", 2),
+      generateImageUrl(property, "exterior", 3),
+    ]
 
-    // For the first 20 properties, use the predefined exterior images
-    if (i <= 20) {
-      propertyExteriorImages = [
-        exteriorImages[i - 1], // Use the specific exterior image for this property
-        generateImageUrl(property, "exterior", 2),
-        generateImageUrl(property, "exterior", 3),
-      ]
-    } else {
-      propertyExteriorImages = [
-        generateImageUrl(property, "exterior", 1),
-        generateImageUrl(property, "exterior", 2),
-        generateImageUrl(property, "exterior", 3),
-      ]
-    }
-
-    interiorImages = [
+    const interiorImages = [
       generateImageUrl(property, "interior", 1),
       generateImageUrl(property, "interior", 2),
       generateImageUrl(property, "interior", 3),
     ]
 
-    bedroomImages = [
+    const bedroomImages = [
       generateImageUrl(property, "bedroom", 1),
       generateImageUrl(property, "bedroom", 2),
       generateImageUrl(property, "bedroom", 3),
@@ -283,21 +246,17 @@ export async function fetchNYCProperties() {
     // Select primary images (one from each category)
     let primaryImages = []
 
-    // For the first 20 properties, use the specific exterior image as primary
-    if (i <= 20) {
-      if (i <= 10) {
-        primaryImages = [exteriorImages[i - 1], interiorImages[0], bedroomImages[0], bathroomImages[0]]
-      } else {
-        primaryImages = [exteriorImages[i - 1], interiorImages[0], bedroomImages[0]]
-      }
+    // For the first 10 properties, include the bathroom image as the primary image
+    if (i <= 10) {
+      primaryImages = [exteriorImages[0], interiorImages[0], bedroomImages[0], bathroomImages[0]]
     } else {
-      primaryImages = [propertyExteriorImages[0], interiorImages[0], bedroomImages[0]]
+      primaryImages = [exteriorImages[0], interiorImages[0], bedroomImages[0]]
     }
 
     // Add all images to the property
     property.images = primaryImages
     property.allImages = {
-      exterior: propertyExteriorImages,
+      exterior: exteriorImages,
       interior: interiorImages,
       bedroom: bedroomImages,
       bathroom: bathroomImages,
