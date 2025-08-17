@@ -195,33 +195,33 @@ export default function HomePage() {
 
   // Toggle property in comparison list
   const togglePropertyComparison = useCallback((property: any) => {
-  setComparisonList((current) => {
-    if (current.some((p) => p.id === property.id)) {
-      const newList = current.filter((p) => p.id !== property.id)
+    setComparisonList((current) => {
+      if (current.some((p) => p.id === property.id)) {
+        const newList = current.filter((p) => p.id !== property.id)
+        try {
+          localStorage.setItem("comparisonList", JSON.stringify(newList))
+        } catch (e) {
+          console.error("Failed to update localStorage", e)
+        }
+        return newList
+      }
+
+      let newList
+      if (current.length < 4) {
+        newList = [...current, property]
+      } else {
+        newList = [...current.slice(1), property]
+      }
+
       try {
         localStorage.setItem("comparisonList", JSON.stringify(newList))
       } catch (e) {
         console.error("Failed to update localStorage", e)
       }
-      return newList
-    }
 
-    let newList
-    if (current.length < 4) {
-      newList = [...current, property]
-    } else {
-      newList = [...current.slice(1), property]
-    }
-
-    try {
-      localStorage.setItem("comparisonList", JSON.stringify(newList))
-    } catch (e) {
-      console.error("Failed to update localStorage", e)
-    }
-
-    return newList // ✅ This was missing
-  })
-}, [])
+      return newList // ✅ This was missing
+    })
+  }, [])
 
 
   const isInComparisonList = useCallback(
@@ -321,6 +321,7 @@ export default function HomePage() {
             <Link href="/signin">
               <Button size="sm" className="gap-1">Sign In</Button>
             </Link>
+          </div>
 
           {/* Mobile Menu */}
           <Sheet>
@@ -536,11 +537,12 @@ export default function HomePage() {
                           />
                         </div>
                       ) : (
-                        filteredProperties.slice(0, 3).map((property) => (
+                        properties.slice(0, 3).map((property) => (
                           <div key={property.id} id={`property-${property.id}`}>
                             <PropertyCard
                               property={property}
                               onClick={() => handlePropertySelect(property)}
+                              isSelected={selectedProperty?.id === property.id}
                               onCompareToggle={togglePropertyComparison}
                               isInComparisonList={isInComparisonList(property.id)}
                               onFavoriteToggle={() => toggleFavorite(property.id)}
@@ -566,12 +568,12 @@ export default function HomePage() {
               <TabsContent value="list" className="mt-0">
                 <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                   {loading
-                    ? Array(8)
+                    ? Array(20)
                         .fill(0)
                         .map((_, i) => (
                           <div key={i} className="h-[300px] rounded-lg border bg-muted animate-pulse"></div>
                         ))
-                    : filteredProperties.slice(0, 12).map((property) => (
+                    : properties.slice(0, 20).map((property) => (
                         <div key={property.id} id={`property-${property.id}`}>
                           <PropertyCard
                             property={property}
@@ -660,8 +662,5 @@ export default function HomePage() {
         </div>
       </footer>
     </div>
-    
   );
 }
-
-
