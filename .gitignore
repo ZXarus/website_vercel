@@ -25,3 +25,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+backend/config/development.json
+backend/config/production.json
+backend/node_modules
+backend/.env
