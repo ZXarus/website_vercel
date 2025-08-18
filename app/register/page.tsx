@@ -6,8 +6,6 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:5000'
-
 export default function RegisterPage() {
   const router = useRouter()
   const [name, setName] = useState('')
@@ -15,58 +13,26 @@ export default function RegisterPage() {
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [error, setError] = useState('')
-  const [loading, setLoading] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    if (!name || !email || !password || !confirmPassword) {
-      setError('All fields are required.')
-      return
-    }
     if (password !== confirmPassword) {
       setError('Passwords do not match.')
       return
     }
 
     setError('')
-    setLoading(true)
+
+    // Simulate registration logic (replace with real API)
     try {
-      const res = await fetch(`http://localhost:5000/auth/sign-up`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          fullName: name,
-          email: email.trim().toLowerCase(),
-          password,
-          confirmPassword,
-        }),
-      });
+      console.log('Registering user:', { name, email, password })
 
-
-      const data = await res.json().catch(() => ({}))
-
-      if (!res.ok) {
-        if (res.status === 409) {
-          setError('User already exists. Please sign in.')
-          return
-        }
-        setError(data?.error || 'Registration failed.')
-        return
-      }
-
-      // store token for later authenticated requests
-      if (data?.token) {
-        localStorage.setItem('pgx_token', data.token)
-      }
-
-      // success -> go to sign in (or dashboard if you prefer)
-      router.push('/')
+      // redirect on success
+      router.push('/signin')
     } catch (err) {
       console.error(err)
       setError('Something went wrong. Please try again.')
-    } finally {
-      setLoading(false)
     }
   }
 
@@ -118,8 +84,8 @@ export default function RegisterPage() {
 
           {error && <p className="text-sm text-red-600">{error}</p>}
 
-          <Button type="submit" className="w-full" disabled={loading}>
-            {loading ? 'Registering…' : 'Register'}
+          <Button type="submit" className="w-full">
+            Register
           </Button>
         </form>
 
