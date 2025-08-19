@@ -36,7 +36,7 @@ exports.createUser = async (req, res) => {
     const lastName = rest.join(' ') || null;
 
     // hash password
-    const hashedPassword = c.hashPassword(password,10);
+    const hashedPassword = await c.hashPassword(password,10);
 
     // insert into users table
     const { data: newUser, error: insertErr } = await supabaseAdmin
@@ -48,6 +48,7 @@ exports.createUser = async (req, res) => {
           last_name: lastName,
           email: normalizedEmail,
           password: hashedPassword,
+          is_active:1,
         }
       ])
       .select()

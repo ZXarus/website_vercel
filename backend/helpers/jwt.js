@@ -5,7 +5,7 @@ const CryptoJS = require('crypto-js');
 function generateJwt(payload, options = {}) {
   const secret = process.env.JWT_SECRET;
   if (!secret) throw new Error('JWT_SECRET not configured');
-  const expiresIn = options.expiresIn || '5h';
+  const expiresIn = options.expiresIn || '2h';
   const token = jwt.sign(payload, secret, { expiresIn });
   const secretToken = encryptAES(token);
   return secretToken;
