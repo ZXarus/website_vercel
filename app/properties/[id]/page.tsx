@@ -6,7 +6,7 @@ import {
   ArrowLeft,
   Bed,
   Bath,
-  SquareIcon as SquareFoot,
+  Square,
   Calendar,
   TrendingUp,
   MapPin,
@@ -28,6 +28,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
 import { fetchNYCProperties } from "@/data/nyc-properties"
+import type { Property } from "@/data/nyc-properties"
 import PriceTrendChart from "@/components/price-trend-chart"
 import { useRouter } from "next/navigation"
 import ImageGallery from "@/components/image-gallery"
@@ -35,16 +36,16 @@ import SimpleImageUploader from "@/components/simple-image-uploader"
 import { usePropertyImages } from "@/hooks/use-property-images"
 
 export default function PropertyDetailPage({ params }: { params: { id: string } }) {
-  const [property, setProperty] = useState(null)
+  const [property, setProperty] = useState<Property | null>(null)
   const [loading, setLoading] = useState(true)
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
-  const [comparisonList, setComparisonList] = useState([])
+  const [comparisonList, setComparisonList] = useState<Property[]>([])
   const router = useRouter()
-  const [favorites, setFavorites] = useState([])
+  const [favorites, setFavorites] = useState<string[]>([])
   const [galleryOpen, setGalleryOpen] = useState(false)
   const [activeImageCategory, setActiveImageCategory] = useState("all")
-  const [displayImages, setDisplayImages] = useState([])
-  const [allImages, setAllImages] = useState([])
+  const [displayImages, setDisplayImages] = useState<string[]>([])
+  const [allImages, setAllImages] = useState<string[]>([])
   const [showImageUploader, setShowImageUploader] = useState(false)
 
   // Use Supabase images hook
@@ -161,7 +162,7 @@ export default function PropertyDetailPage({ params }: { params: { id: string } 
     })
   }, [property])
 
-  const isFavorite = property && favorites.includes(property.id)
+  const isFavorite = !!(property && favorites.includes(property.id))
 
   // Memoize the toggle function to avoid recreating it on every render
   const togglePropertyComparison = useCallback(() => {
@@ -194,7 +195,7 @@ export default function PropertyDetailPage({ params }: { params: { id: string } 
     })
   }, [property])
 
-  const isInComparisonList = property && comparisonList.some((p) => p.id === property.id)
+  const isInComparisonList = !!(property && comparisonList.some((p) => p.id === property.id))
 
   const handleCompareClick = () => {
     if (comparisonList.length > 1) {
@@ -453,7 +454,7 @@ export default function PropertyDetailPage({ params }: { params: { id: string } 
                 <span className="font-medium">{property.bathrooms} Bathrooms</span>
               </div>
               <div className="flex items-center gap-2">
-                <SquareFoot className="w-5 h-5 text-muted-foreground" />
+                <Square className="w-5 h-5 text-muted-foreground" />
                 <span className="font-medium">{property.sqft.toLocaleString()} sqft</span>
               </div>
               <div className="flex items-center gap-2">
@@ -785,8 +786,8 @@ export default function PropertyDetailPage({ params }: { params: { id: string } 
         <ImageGallery
           images={displayImages}
           initialIndex={currentImageIndex}
-          onClose={() => setGalleryOpen(false)}
-          title={property.title}
+          open={galleryOpen}
+          onOpenChange={setGalleryOpen}
         />
       )}
     </div>

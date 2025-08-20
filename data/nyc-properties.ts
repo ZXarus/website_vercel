@@ -1,11 +1,48 @@
 // This is a sophisticated version of the data fetching function
 // that generates unique images for each property based on its characteristics
 
-export async function fetchNYCProperties() {
+export type Property = {
+  id: string
+  title: string
+  address: string
+  currentPrice: number
+  predictedPrice: number
+  priceChange: number
+  priceChangePercent: number
+  bedrooms: number
+  bathrooms: number
+  sqft: number
+  type: string
+  yearBuilt: number
+  roi: number
+  latitude: number
+  longitude: number
+  images?: string[]
+  allImages?: {
+    exterior: string[]
+    interior: string[]
+    bedroom: string[]
+    bathroom: string[]
+  }
+  features?: {
+    hasParking: boolean
+    hasGarden: boolean
+    hasPool: boolean
+    hasBalcony: boolean
+    hasElevator: boolean
+    hasGym: boolean
+    hasDoorman: boolean
+    isRenovated: boolean
+    hasWaterView: boolean
+    hasCentralAir: boolean
+  }
+}
+
+export async function fetchNYCProperties(): Promise<Property[]> {
   // Simulate API call delay
   await new Promise((resolve) => setTimeout(resolve, 1000))
 
-  const properties = []
+  const properties: Property[] = []
 
   // NYC neighborhoods
   const neighborhoods = [
@@ -50,12 +87,12 @@ export async function fetchNYCProperties() {
   ]
 
   // Generate a unique seed for each property to ensure consistent but varied images
-  const generateSeed = (propertyId, suffix = "") => {
+  const generateSeed = (propertyId: string, suffix = "") => {
     return `${propertyId}${suffix}`
   }
 
   // Generate a unique image URL based on property characteristics
-  const generateImageUrl = (property, viewType, index) => {
+  const generateImageUrl = (property: Property, viewType: "exterior" | "interior" | "bedroom" | "bathroom", index: number) => {
     const { id, type, bedrooms, bathrooms, yearBuilt, currentPrice, address } = property
 
     // Create a unique seed for this specific image
@@ -125,7 +162,7 @@ export async function fetchNYCProperties() {
   }
 
   // Hash function to generate consistent but varied indices
-  const hashCode = (str) => {
+  const hashCode = (str: string) => {
     let hash = 0
     for (let i = 0; i < str.length; i++) {
       const char = str.charCodeAt(i)
@@ -185,7 +222,7 @@ export async function fetchNYCProperties() {
     const yearBuilt = Math.floor(Math.random() * 120) + 1900
 
     // Create property object first so we can pass it to generateImageUrl
-    const property = {
+    const property: Property = {
       id: `prop${i}`,
       title,
       address,
