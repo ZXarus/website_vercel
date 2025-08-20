@@ -12,18 +12,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
 import { fetchNYCProperties } from "@/data/nyc-properties"
+import type { Property } from "@/data/nyc-properties"
 import { useRouter } from "next/navigation"
 import GovernmentDashboard from "@/components/government-dashboard"
-
-type Property = {
-  id: string
-  title: string
-  address: string
-  currentPrice: number
-  priceChangePercent: number
-  images?: string[]
-}
-
 
 // This component preloads bathroom images for better performance
 function ImagePreloader() {
@@ -181,7 +172,7 @@ export default function HomePage() {
     setFilteredProperties(result)
   }, [properties, searchQuery, priceFilter, changeFilter, sortBy])
 
-  const handlePropertySelect = (property: any) => {
+  const handlePropertySelect = (property: Property | null) => {
     setSelectedProperty(property)
 
     // Scroll to the property in the list if on mobile
@@ -194,7 +185,7 @@ export default function HomePage() {
   }
 
   // Toggle property in comparison list
-  const togglePropertyComparison = useCallback((property: any) => {
+  const togglePropertyComparison = useCallback((property: Property) => {
     setComparisonList((current) => {
       if (current.some((p) => p.id === property.id)) {
         const newList = current.filter((p) => p.id !== property.id)
@@ -319,7 +310,13 @@ export default function HomePage() {
             </Button>
 
             <Link href="/signin">
-              <Button size="sm" className="gap-1">Sign In</Button>
+              <Button 
+                size="sm" 
+                className="gap-1"
+                onClick={() => console.log('Sign In button clicked')}
+              >
+                Sign In
+              </Button>
             </Link>
           </div>
 
@@ -349,6 +346,9 @@ export default function HomePage() {
                 <Link href="/calculator" className="text-lg font-medium">
                   ROI Calculator
                 </Link>
+                <Link href="/test" className="text-lg font-medium text-blue-600">
+                  Test Page
+                </Link>
                 {comparisonList.length > 0 && (
                   <Button
                     variant="outline"
@@ -360,7 +360,14 @@ export default function HomePage() {
                     Compare ({comparisonList.length})
                   </Button>
                 )}
-                <Button className="mt-4">Sign In</Button>
+                <Link href="/signin">
+                  <Button 
+                    className="mt-4"
+                    onClick={() => console.log('Mobile Sign In button clicked')}
+                  >
+                    Sign In
+                  </Button>
+                </Link>
               </nav>
             </SheetContent>
           </Sheet>
@@ -537,7 +544,7 @@ export default function HomePage() {
                           />
                         </div>
                       ) : (
-                        properties.slice(0, 3).map((property) => (
+                        properties.slice(0, 3).map((property: Property) => (
                           <div key={property.id} id={`property-${property.id}`}>
                             <PropertyCard
                               property={property}
@@ -573,7 +580,7 @@ export default function HomePage() {
                         .map((_, i) => (
                           <div key={i} className="h-[300px] rounded-lg border bg-muted animate-pulse"></div>
                         ))
-                    : properties.slice(0, 20).map((property) => (
+                    : properties.slice(0, 20).map((property: Property) => (
                         <div key={property.id} id={`property-${property.id}`}>
                           <PropertyCard
                             property={property}
