@@ -3,19 +3,20 @@
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { useSearchParams } from "next/navigation"
-import { ArrowLeft, Bed, Bath, SquareIcon as SquareFoot, Calendar, MapPin, Scale, X } from "lucide-react"
+import { ArrowLeft, Bed, Bath, Square, Calendar, MapPin, Scale, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { fetchNYCProperties } from "@/data/nyc-properties"
+import type { Property } from "@/data/nyc-properties"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ChartContainer } from "@/components/ui/chart"
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from "recharts"
 
 export default function ComparePropertiesPage() {
   const searchParams = useSearchParams()
-  const [properties, setProperties] = useState([])
+  const [properties, setProperties] = useState<Property[]>([])
   const [loading, setLoading] = useState(true)
-  const [comparisonIds, setComparisonIds] = useState([])
+  const [comparisonIds, setComparisonIds] = useState<string[]>([])
 
   // Replace the two separate useEffect hooks with a single combined one that handles both ID extraction and property loading
 
@@ -25,18 +26,19 @@ export default function ComparePropertiesPage() {
       setLoading(true)
 
       // Extract IDs from URL or localStorage
-      let propertyIds = []
+      let propertyIds: string[] = []
 
-      if (searchParams.get("ids")) {
-        propertyIds = searchParams.get("ids").split(",")
+      const idsParam = searchParams.get("ids")
+      if (idsParam) {
+        propertyIds = idsParam.split(",")
       } else {
         // Try to get from localStorage
         try {
           const storedList = localStorage.getItem("comparisonList")
           if (storedList) {
-            const list = JSON.parse(storedList)
+            const list = JSON.parse(storedList) as Array<{ id: string }>
             if (Array.isArray(list) && list.length > 0) {
-              propertyIds = list.map((p) => p.id)
+              propertyIds = list.map((p: { id: string }) => p.id)
             }
           }
         } catch (e) {
@@ -58,7 +60,7 @@ export default function ComparePropertiesPage() {
         const allProperties = await fetchNYCProperties()
 
         // Filter to only the ones we want to compare
-        const selectedProperties = allProperties.filter((p) => propertyIds.includes(p.id))
+        const selectedProperties = allProperties.filter((p: Property) => propertyIds.includes(p.id))
 
         setProperties(selectedProperties)
       } catch (error) {
@@ -73,20 +75,20 @@ export default function ComparePropertiesPage() {
   }, [searchParams])
 
   // Also update the removeProperty function to avoid triggering multiple state updates
-  const removeProperty = (propertyId) => {
+  const removeProperty = (propertyId: string) => {
     // Update the UI and comparisonIds in a single operation
     setProperties((current) => {
-      const updatedProperties = current.filter((p) => p.id !== propertyId)
+      const updatedProperties = current.filter((p: Property) => p.id !== propertyId)
 
       // Update localStorage with the new list
       try {
-        const updatedIds = updatedProperties.map((p) => p.id)
+        const updatedIds = updatedProperties.map((p: Property) => p.id)
         setComparisonIds(updatedIds)
 
         const storedList = localStorage.getItem("comparisonList")
         if (storedList) {
-          const list = JSON.parse(storedList)
-          const updatedList = list.filter((p) => p.id !== propertyId)
+          const list = JSON.parse(storedList) as Array<{ id: string }>
+          const updatedList = list.filter((p: { id: string }) => p.id !== propertyId)
           localStorage.setItem("comparisonList", JSON.stringify(updatedList))
         }
       } catch (e) {
@@ -98,26 +100,26 @@ export default function ComparePropertiesPage() {
   }
 
   // Prepare chart data
-  const priceChartData = properties.map((property) => ({
+  const priceChartData = properties.map((property: Property) => ({
     name: property.title.split(" in ")[1] || property.title,
     currentPrice: property.currentPrice,
     predictedPrice: property.predictedPrice,
     id: property.id,
   }))
 
-  const roiChartData = properties.map((property) => ({
+  const roiChartData = properties.map((property: Property) => ({
     name: property.title.split(" in ")[1] || property.title,
     roi: property.roi,
     id: property.id,
   }))
 
-  const priceChangeChartData = properties.map((property) => ({
+  const priceChangeChartData = properties.map((property: Property) => ({
     name: property.title.split(" in ")[1] || property.title,
     priceChange: property.priceChangePercent,
     id: property.id,
   }))
 
-  const cashFlowChartData = properties.map((property) => {
+  const cashFlowChartData = properties.map((property: Property) => {
     const monthlyRent = Math.round(property.currentPrice * 0.004)
     const monthlyMortgage = Math.round(property.currentPrice * 0.8 * 0.005)
     const monthlyExpenses = Math.round(property.currentPrice * 0.001)
@@ -531,7 +533,7 @@ export default function ComparePropertiesPage() {
                   {properties.map((property) => (
                     <td key={property.id} className="p-3">
                       <div className="flex items-center gap-1">
-                        <SquareFoot className="w-4 h-4 text-muted-foreground" />
+                        <Square className="w-4 h-4 text-muted-foreground" />
                         <span>{property.sqft.toLocaleString()} sqft</span>
                       </div>
                     </td>

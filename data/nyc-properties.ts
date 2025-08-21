@@ -108,26 +108,32 @@ const interiorImagesPool = [
   "/images/din_110.jpg",
 ];
 
+// ✨ FIX: The shuffle function is now a pure utility, correctly placed.
 // Function to shuffle an array (Fisher-Yates algorithm)
 function shuffleArray<T>(array: T[]): T[] {
-    for (let i = array.length - 1; i > 0; i--) {
+    const newArray = [...array]; // Create a shallow copy to avoid modifying the original
+    for (let i = newArray.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
+        [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
     }
-    return array;
+    return newArray;
 }
 
-// Global shuffled image arrays to maintain state across calls
-const shuffledExteriorImages = shuffleArray([...exteriorImages]);
-const shuffledInteriorImages = shuffleArray([...interiorImagesPool]);
-const shuffledBedroomImages = shuffleArray([...bedroomImagesPool]);
-const shuffledBathroomImages = shuffleArray([...bathroomImagesPool]);
+// ✨ FIX: Global shuffled image arrays are removed from here to prevent state conflicts.
 
 export async function fetchNYCProperties(): Promise<Property[]> {
   // Simulate API call delay
   await new Promise((resolve) => setTimeout(resolve, 1000));
 
   const properties: Property[] = [];
+  
+  // ✨ FIX: Shuffling now happens *inside* the function.
+  // This creates a new random order for every API call, making the function stateless.
+  const shuffledExteriorImages = shuffleArray(exteriorImages);
+  const shuffledInteriorImages = shuffleArray(interiorImagesPool);
+  const shuffledBedroomImages = shuffleArray(bedroomImagesPool);
+  const shuffledBathroomImages = shuffleArray(bathroomImagesPool);
+
 
   // NYC neighborhoods
   const neighborhoods = [
@@ -212,8 +218,7 @@ export async function fetchNYCProperties(): Promise<Property[]> {
       },
     };
 
-    // --- ✨ FINAL Image Generation Logic with shuffling ---
-    // The modulo operation is now applied to the shuffled arrays.
+    // The modulo logic now correctly uses the newly shuffled arrays for this specific call.
     const propertyExteriorImage = shuffledExteriorImages[(i - 1) % shuffledExteriorImages.length];
     const propertyInteriorImage = shuffledInteriorImages[(i - 1) % shuffledInteriorImages.length];
     const propertyBedroomImage = shuffledBedroomImages[(i - 1) % shuffledBedroomImages.length];
