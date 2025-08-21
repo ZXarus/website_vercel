@@ -3,12 +3,13 @@
 import { useState, useEffect, useMemo } from "react"
 import dynamic from "next/dynamic"
 import { fetchNYCProperties } from "@/data/nyc-properties"
+import type { Property } from "@/data/nyc-properties"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { ArrowLeft } from "lucide-react"
 
 export default function MapPage() {
-  const [properties, setProperties] = useState([])
+  const [properties, setProperties] = useState<Property[]>([])
   const [loading, setLoading] = useState(true)
 
   // Dynamically import the CesiumMap component to prevent SSR issues

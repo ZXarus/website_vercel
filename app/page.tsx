@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { useState, useEffect, useCallback } from "react"
 import { Filter, Search, Calculator, Menu, ArrowUpDown, BarChart2, Scale } from "lucide-react"
@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
 import { fetchNYCProperties } from "@/data/nyc-properties"
+import type { Property } from "@/data/nyc-properties"
 import { useRouter } from "next/navigation"
 import GovernmentDashboard from "@/components/government-dashboard"
 
@@ -33,18 +34,19 @@ function ImagePreloader() {
 }
 
 export default function HomePage() {
-  const [properties, setProperties] = useState([])
-  const [filteredProperties, setFilteredProperties] = useState([])
-  const [selectedProperty, setSelectedProperty] = useState(null)
+  const [properties, setProperties] = useState<Property[]>([])
+  const [filteredProperties, setFilteredProperties] = useState<Property[]>([])
+  const [selectedProperty, setSelectedProperty] = useState<Property | null>(null)
   const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState("")
   const [priceFilter, setPriceFilter] = useState("any")
   const [changeFilter, setChangeFilter] = useState("any")
   const [sortBy, setSortBy] = useState("priceChangeDesc")
-  const [comparisonList, setComparisonList] = useState([])
+  const [comparisonList, setComparisonList] = useState<Property[]>([])
   const router = useRouter()
-  const [favorites, setFavorites] = useState([])
+  const [favorites, setFavorites] = useState<string[]>([])
   const [currentMode, setCurrentMode] = useState<"investor" | "government">("investor")
+
 
   // Load properties on component mount
   useEffect(() => {
@@ -170,7 +172,7 @@ export default function HomePage() {
     setFilteredProperties(result)
   }, [properties, searchQuery, priceFilter, changeFilter, sortBy])
 
-  const handlePropertySelect = (property: any) => {
+  const handlePropertySelect = (property: Property | null) => {
     setSelectedProperty(property)
 
     // Scroll to the property in the list if on mobile
@@ -183,41 +185,35 @@ export default function HomePage() {
   }
 
   // Toggle property in comparison list
-  const togglePropertyComparison = useCallback((property: any) => {
+  const togglePropertyComparison = useCallback((property: Property) => {
     setComparisonList((current) => {
-      // If property is already in the list, remove it
       if (current.some((p) => p.id === property.id)) {
         const newList = current.filter((p) => p.id !== property.id)
-
-        // Update localStorage
         try {
           localStorage.setItem("comparisonList", JSON.stringify(newList))
         } catch (e) {
           console.error("Failed to update localStorage", e)
         }
-
         return newList
       }
 
-      // Otherwise add it (up to 4 properties)
       let newList
       if (current.length < 4) {
         newList = [...current, property]
       } else {
-        // If already at 4 properties, replace the oldest one
         newList = [...current.slice(1), property]
       }
 
-      // Update localStorage
       try {
         localStorage.setItem("comparisonList", JSON.stringify(newList))
       } catch (e) {
         console.error("Failed to update localStorage", e)
       }
 
-      return newList
+      return newList // ✅ This was missing
     })
   }, [])
+
 
   const isInComparisonList = useCallback(
     (propertyId: string) => {
@@ -313,9 +309,15 @@ export default function HomePage() {
               Calculate ROI
             </Button>
 
-            <Button size="sm" className="gap-1">
-              Sign In
-            </Button>
+            <Link href="/signin">
+              <Button 
+                size="sm" 
+                className="gap-1"
+                onClick={() => console.log('Sign In button clicked')}
+              >
+                Sign In
+              </Button>
+            </Link>
           </div>
 
           {/* Mobile Menu */}
@@ -344,6 +346,9 @@ export default function HomePage() {
                 <Link href="/calculator" className="text-lg font-medium">
                   ROI Calculator
                 </Link>
+                <Link href="/test" className="text-lg font-medium text-blue-600">
+                  Test Page
+                </Link>
                 {comparisonList.length > 0 && (
                   <Button
                     variant="outline"
@@ -355,7 +360,14 @@ export default function HomePage() {
                     Compare ({comparisonList.length})
                   </Button>
                 )}
-                <Button className="mt-4">Sign In</Button>
+                <Link href="/signin">
+                  <Button 
+                    className="mt-4"
+                    onClick={() => console.log('Mobile Sign In button clicked')}
+                  >
+                    Sign In
+                  </Button>
+                </Link>
               </nav>
             </SheetContent>
           </Sheet>
@@ -532,11 +544,12 @@ export default function HomePage() {
                           />
                         </div>
                       ) : (
-                        filteredProperties.slice(0, 3).map((property) => (
+                        properties.slice(0, 3).map((property: Property) => (
                           <div key={property.id} id={`property-${property.id}`}>
                             <PropertyCard
                               property={property}
                               onClick={() => handlePropertySelect(property)}
+                              isSelected={selectedProperty?.id === property.id}
                               onCompareToggle={togglePropertyComparison}
                               isInComparisonList={isInComparisonList(property.id)}
                               onFavoriteToggle={() => toggleFavorite(property.id)}
@@ -562,12 +575,12 @@ export default function HomePage() {
               <TabsContent value="list" className="mt-0">
                 <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                   {loading
-                    ? Array(8)
+                    ? Array(20)
                         .fill(0)
                         .map((_, i) => (
                           <div key={i} className="h-[300px] rounded-lg border bg-muted animate-pulse"></div>
                         ))
-                    : filteredProperties.slice(0, 12).map((property) => (
+                    : properties.slice(0, 20).map((property: Property) => (
                         <div key={property.id} id={`property-${property.id}`}>
                           <PropertyCard
                             property={property}
@@ -656,5 +669,5 @@ export default function HomePage() {
         </div>
       </footer>
     </div>
-  )
+  );
 }
