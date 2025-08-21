@@ -1,48 +1,139 @@
+// lib/nyc-properties.ts
+
 // This is a sophisticated version of the data fetching function
 // that generates unique images for each property based on its characteristics
 
+// Define a type for a single property for better type-safety
 export type Property = {
-  id: string
-  title: string
-  address: string
-  currentPrice: number
-  predictedPrice: number
-  priceChange: number
-  priceChangePercent: number
-  bedrooms: number
-  bathrooms: number
-  sqft: number
-  type: string
-  yearBuilt: number
-  roi: number
-  latitude: number
-  longitude: number
-  images?: string[]
-  allImages?: {
-    exterior: string[]
-    interior: string[]
-    bedroom: string[]
-    bathroom: string[]
-  }
-  features?: {
-    hasParking: boolean
-    hasGarden: boolean
-    hasPool: boolean
-    hasBalcony: boolean
-    hasElevator: boolean
-    hasGym: boolean
-    hasDoorman: boolean
-    isRenovated: boolean
-    hasWaterView: boolean
-    hasCentralAir: boolean
-  }
+  id: string;
+  title: string;
+  address: string;
+  currentPrice: number;
+  predictedPrice: number;
+  priceChange: number;
+  priceChangePercent: number;
+  bedrooms: number;
+  bathrooms: number;
+  sqft: number;
+  type: string;
+  yearBuilt: number;
+  roi: number;
+  latitude: number;
+  longitude: number;
+  images: string[];
+  allImages: {
+    exterior: string[];
+    interior: string[];
+    bedroom: string[];
+    bathroom: string[];
+  };
+  features: {
+    hasParking: boolean;
+    hasGarden: boolean;
+    hasPool: boolean;
+    hasBalcony: boolean;
+    hasElevator: boolean;
+    hasGym: boolean;
+    hasDoorman: boolean;
+    isRenovated: boolean;
+    hasWaterView: boolean;
+    hasCentralAir: boolean;
+  };
+};
+
+// --- IMAGE ARRAYS ---
+// Pool of exterior images
+const exteriorImages = [
+  "/images/apartment-variation-1.png",
+  "/images/apartment_0002.jpg",
+  "/images/apartment_0003.jpg",
+  "/images/apartment_0004.jpg",
+  "/images/apartment_0005.jpg",
+  "/images/apartment_0006.jpg",
+  "/images/apartment_0007.jpg",
+  "/images/apartment_0008.jpg",
+  "/images/apartment_0009.jpg",
+  "/images/apartment_0010.jpg",
+  "/images/apartment_0012.jpg",
+  "/images/apartment_0013.jpg",
+  "/images/apartment_0014.jpg",
+  "/images/apartment_0015.jpg",
+  "/images/apartment_0016.jpg",
+  "/images/apartment_0017.jpg",
+  "/images/apartment_0018.jpg",
+  "/images/apartment_0019.jpg",
+  "/images/apartment_0020.jpg",
+  "/images/apartment_0021.jpg",
+];
+
+// Pool of bathroom images
+const bathroomImagesPool = [
+  "/images/bath_100.jpg",
+  "/images/bath_1001.jpg",
+  "/images/bath_1003.jpg",
+  "/images/bath_1004.jpg",
+  "/images/bath_1005.jpg",
+  "/images/bath_1006.jpg",
+  "/images/bath_1007.jpg",
+  "/images/bath_1010.jpg",
+  "/images/bath_1011.jpg",
+  "/images/bath_1012.jpg",
+];
+
+// Pool of bedroom images
+const bedroomImagesPool = [
+  "/images/bed_100.jpg",
+  "/images/bed_10.jpg",
+  "/images/bed_101.jpg",
+  "/images/bed_102.jpg",
+  "/images/bed_103.jpg",
+  "/images/bed_104.jpg",
+  "/images/bed_105.jpg",
+  "/images/bed_106.jpg",
+  "/images/bed_107.jpg",
+  "/images/bed_1000.jpg",
+];
+
+// Pool of interior (living/dining room) images
+const interiorImagesPool = [
+  "/images/din_1.jpg",
+  "/images/din_10.jpg",
+  "/images/din_100.jpg",
+  "/images/din_1000.jpg",
+  "/images/din_102.jpg",
+  "/images/din_104.jpg",
+  "/images/din_105.jpg",
+  "/images/din_106.jpg",
+  "/images/din_108.jpg",
+  "/images/din_110.jpg",
+];
+
+// ✨ FIX: The shuffle function is now a pure utility, correctly placed.
+// Function to shuffle an array (Fisher-Yates algorithm)
+function shuffleArray<T>(array: T[]): T[] {
+    const newArray = [...array]; // Create a shallow copy to avoid modifying the original
+    for (let i = newArray.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+    }
+    return newArray;
 }
+
+// ✨ FIX: Global shuffled image arrays are removed from here to prevent state conflicts.
 
 export async function fetchNYCProperties(): Promise<Property[]> {
   // Simulate API call delay
-  await new Promise((resolve) => setTimeout(resolve, 1000))
+  await new Promise((resolve) => setTimeout(resolve, 1000));
 
-  const properties: Property[] = []
+  const properties: Property[] = [];
+  
+  // ✨ FIX: Shuffling now happens *inside* the function.
+  // This creates a new random order for every API call, making the function stateless.
+  const shuffledExteriorImages = shuffleArray(exteriorImages);
+  const shuffledInteriorImages = shuffleArray(interiorImagesPool);
+  const shuffledBedroomImages = shuffleArray(bedroomImagesPool);
+  const shuffledBathroomImages = shuffleArray(bathroomImagesPool);
+
 
   // NYC neighborhoods
   const neighborhoods = [
@@ -60,262 +151,97 @@ export async function fetchNYCProperties(): Promise<Property[]> {
     { name: "Queens - Long Island City", lat: 40.7447, lng: -73.9485 },
     { name: "Bronx - Riverdale", lat: 40.89, lng: -73.9122 },
     { name: "Staten Island - St. George", lat: 40.6447, lng: -74.0776 },
-  ]
+  ];
 
   // Property types
-  const propertyTypes = ["Condo", "Co-op", "Townhouse", "Multi-Family", "Single Family"]
+  const propertyTypes = ["Condo", "Co-op", "Townhouse", "Multi-Family", "Single Family"];
 
   // Street names
   const streets = [
-    "Broadway",
-    "Park Avenue",
-    "5th Avenue",
-    "Madison Avenue",
-    "Lexington Avenue",
-    "Amsterdam Avenue",
-    "Columbus Avenue",
-    "West End Avenue",
-    "Riverside Drive",
-    "Central Park West",
-    "Bedford Avenue",
-    "Metropolitan Avenue",
-    "Court Street",
-    "Atlantic Avenue",
-    "Flatbush Avenue",
-    "Ocean Avenue",
-    "Eastern Parkway",
-  ]
-
-  // Generate a unique seed for each property to ensure consistent but varied images
-  const generateSeed = (propertyId: string, suffix = "") => {
-    return `${propertyId}${suffix}`
-  }
-
-  // Generate a unique image URL based on property characteristics
-  const generateImageUrl = (property: Property, viewType: "exterior" | "interior" | "bedroom" | "bathroom", index: number) => {
-    const { id, type, bedrooms, bathrooms, yearBuilt, currentPrice, address } = property
-
-    // Create a unique seed for this specific image
-    const seed = generateSeed(id, `${viewType}${index}`)
-
-    // Generate a hash from the seed
-    const hash = Math.abs(hashCode(seed))
-
-    // Determine style variations based on property characteristics
-    const isLuxury = currentPrice > 1500000
-    const isModern = yearBuilt > 2000
-    const isHistoric = yearBuilt < 1950
-    const isRenovated = hash % 3 === 0
-    const hasWaterView = hash % 7 === 0
-    const hasCityView = hash % 5 === 0
-
-    // Build the image description
-    let description = ""
-
-    if (viewType === "exterior") {
-      description = `${isLuxury ? "Luxury " : ""}${isModern ? "Modern " : ""}${isHistoric ? "Historic " : ""}${type} in ${address.split(",")[1]?.trim() || "NYC"}`
-
-      if (hasWaterView) description += " with water view"
-      if (hasCityView) description += " with city skyline view"
-
-      // Add angle variation
-      if (index % 3 === 0) description += " - front view"
-      else if (index % 3 === 1) description += " - angle view"
-      else description += " - side view"
-    } else if (viewType === "interior") {
-      const rooms = ["Living Room", "Kitchen", "Dining Area", "Foyer", "Den"]
-      const room = rooms[hash % rooms.length]
-
-      description = `${isLuxury ? "Luxury " : ""}${isModern ? "Modern " : ""}${isRenovated ? "Renovated " : ""}${room} in ${type}`
-
-      if (hasWaterView) description += " with water view"
-      if (hasCityView) description += " with city view"
-
-      // Add style variation
-      const styles = ["contemporary", "traditional", "minimalist", "elegant", "cozy"]
-      const style = styles[hash % styles.length]
-      description += ` - ${style} style`
-    } else if (viewType === "bedroom") {
-      description = `${bedrooms} Bedroom${bedrooms > 1 ? "s" : ""} in ${type} - ${isLuxury ? "Luxury " : ""}${isModern ? "Modern " : ""}Master Suite`
-
-      if (hasWaterView) description += " with water view"
-      if (hasCityView) description += " with city view"
-
-      // Add angle variation
-      if (index % 3 === 0) description += " - main view"
-      else if (index % 3 === 1) description += " - bed view"
-      else description += " - closet view"
-    } else if (viewType === "bathroom") {
-      description = `${bathrooms} Bathroom${bathrooms > 1 ? "s" : ""} in ${type} - ${isLuxury ? "Luxury " : ""}${isModern ? "Modern " : ""}${isRenovated ? "Renovated " : ""}Bath`
-    }
-
-    // For the first 100 properties, use more specific image URLs
-    if (Number.parseInt(id.replace("prop", "")) <= 100) {
-      // Generate a unique image URL based on property type and index
-      const typeFolder = type.toLowerCase().replace(/\s+/g, "-")
-      const uniqueIndex = (hash % 20) + 1 // 20 variations per type
-      return `/images/${typeFolder}-${uniqueIndex}-${viewType}-${index}.png`
-    }
-
-    // For other properties, use placeholder with unique descriptions
-    return `/placeholder.svg?height=600&width=1200&text=${encodeURIComponent(description)}`
-  }
-
-  // Hash function to generate consistent but varied indices
-  const hashCode = (str: string) => {
-    let hash = 0
-    for (let i = 0; i < str.length; i++) {
-      const char = str.charCodeAt(i)
-      hash = (hash << 5) - hash + char
-      hash = hash & hash // Convert to 32bit integer
-    }
-    return hash
-  }
+    "Broadway", "Park Avenue", "5th Avenue", "Madison Avenue", "Lexington Avenue",
+    "Amsterdam Avenue", "Columbus Avenue", "West End Avenue", "Riverside Drive",
+    "Central Park West", "Bedford Avenue", "Metropolitan Avenue", "Court Street",
+    "Atlantic Avenue", "Flatbush Avenue", "Ocean Avenue", "Eastern Parkway",
+  ];
 
   // Generate properties
   for (let i = 1; i <= 2703; i++) {
-    // Select a random neighborhood
-    const neighborhood = neighborhoods[Math.floor(Math.random() * neighborhoods.length)]
+    const neighborhood = neighborhoods[Math.floor(Math.random() * neighborhoods.length)];
+    const latOffset = (Math.random() - 0.5) * 0.02;
+    const lngOffset = (Math.random() - 0.5) * 0.02;
+    const propertyType = propertyTypes[Math.floor(Math.random() * propertyTypes.length)];
+    const bedrooms = Math.floor(Math.random() * 4) + 1;
+    const bathrooms = Math.floor(Math.random() * 3) + 1;
+    const sqft = Math.floor(Math.random() * 2000) + 500;
 
-    // Create small random offset for latitude and longitude to spread properties out
-    const latOffset = (Math.random() - 0.5) * 0.02
-    const lngOffset = (Math.random() - 0.5) * 0.02
+    let basePrice = 0;
+    if (neighborhood.name.includes("Manhattan")) basePrice = Math.floor(Math.random() * 3000000) + 1000000;
+    else if (neighborhood.name.includes("Brooklyn")) basePrice = Math.floor(Math.random() * 2000000) + 800000;
+    else if (neighborhood.name.includes("Queens")) basePrice = Math.floor(Math.random() * 1500000) + 600000;
+    else basePrice = Math.floor(Math.random() * 1000000) + 400000;
 
-    // Generate random property details
-    const propertyType = propertyTypes[Math.floor(Math.random() * propertyTypes.length)]
-    const bedrooms = Math.floor(Math.random() * 4) + 1
-    const bathrooms = Math.floor(Math.random() * 3) + 1
-    const sqft = Math.floor(Math.random() * 2000) + 500
+    const currentPrice = basePrice + bedrooms * 100000 + bathrooms * 50000 + sqft * 500;
+    const priceChangePercent = Math.random() * 24 + 1;
+    const priceChange = currentPrice * (priceChangePercent / 100);
+    const streetNumber = Math.floor(Math.random() * 300) + 1;
+    const street = streets[Math.floor(Math.random() * streets.length)];
 
-    // Generate price based on neighborhood and property details
-    let basePrice = 0
-    if (neighborhood.name.includes("Manhattan")) {
-      basePrice = Math.floor(Math.random() * 3000000) + 1000000
-    } else if (neighborhood.name.includes("Brooklyn")) {
-      basePrice = Math.floor(Math.random() * 2000000) + 800000
-    } else if (neighborhood.name.includes("Queens")) {
-      basePrice = Math.floor(Math.random() * 1500000) + 600000
-    } else {
-      basePrice = Math.floor(Math.random() * 1000000) + 400000
-    }
-
-    // Adjust price based on property details
-    const currentPrice = basePrice + bedrooms * 100000 + bathrooms * 50000 + sqft * 500
-
-    // Generate price change (between -20% and +25%)
-    const priceChangePercent = Math.random() * 45 - 20
-    const priceChange = currentPrice * (priceChangePercent / 100)
-    const predictedPrice = currentPrice + priceChange
-
-    // Generate ROI (between 3% and 15%)
-    const roi = Math.floor(Math.random() * 12) + 3
-
-    // Generate street number and address
-    const streetNumber = Math.floor(Math.random() * 300) + 1
-    const street = streets[Math.floor(Math.random() * streets.length)]
-    const address = `${streetNumber} ${street}, ${neighborhood.name.split(" - ")[1]}, NY`
-
-    // Generate property title
-    const title = `${bedrooms}BR ${bathrooms}BA ${propertyType} in ${neighborhood.name.split(" - ")[1]}`
-
-    // Generate year built (between 1900 and 2020)
-    const yearBuilt = Math.floor(Math.random() * 120) + 1900
-
-    // Create property object first so we can pass it to generateImageUrl
     const property: Property = {
       id: `prop${i}`,
-      title,
-      address,
+      title: `${bedrooms}BR ${bathrooms}BA ${propertyType} in ${neighborhood.name.split(" - ")[1]}`,
+      address: `${streetNumber} ${street}, ${neighborhood.name.split(" - ")[1]}, NY`,
       currentPrice,
-      predictedPrice,
+      predictedPrice: currentPrice + priceChange,
       priceChange,
       priceChangePercent,
       bedrooms,
       bathrooms,
       sqft,
       type: propertyType,
-      yearBuilt,
-      roi,
+      yearBuilt: Math.floor(Math.random() * 120) + 1900,
+      roi: Math.floor(Math.random() * 12) + 3,
       latitude: neighborhood.lat + latOffset,
       longitude: neighborhood.lng + lngOffset,
-    }
+      images: [],
+      allImages: { exterior: [], interior: [], bedroom: [], bathroom: [] },
+      features: {
+        hasParking: Math.random() > 0.5,
+        hasGarden: Math.random() > 0.7,
+        hasPool: Math.random() > 0.9,
+        hasBalcony: Math.random() > 0.6,
+        hasElevator: (propertyType === "Condo" || propertyType === "Co-op") && Math.random() > 0.3,
+        hasGym: (propertyType === "Condo" || propertyType === "Co-op") && Math.random() > 0.6,
+        hasDoorman: (propertyType === "Condo" || propertyType === "Co-op") && Math.random() > 0.7,
+        isRenovated: Math.random() > 0.5,
+        hasWaterView: Math.random() > 0.8,
+        hasCentralAir: Math.random() > 0.4,
+      },
+    };
 
-    // Generate unique images for this property
-    const exteriorImages = [
-      generateImageUrl(property, "exterior", 1),
-      generateImageUrl(property, "exterior", 2),
-      generateImageUrl(property, "exterior", 3),
-    ]
+    // The modulo logic now correctly uses the newly shuffled arrays for this specific call.
+    const propertyExteriorImage = shuffledExteriorImages[(i - 1) % shuffledExteriorImages.length];
+    const propertyInteriorImage = shuffledInteriorImages[(i - 1) % shuffledInteriorImages.length];
+    const propertyBedroomImage = shuffledBedroomImages[(i - 1) % shuffledBedroomImages.length];
+    const propertyBathroomImage = shuffledBathroomImages[(i - 1) % shuffledBathroomImages.length];
 
-    const interiorImages = [
-      generateImageUrl(property, "interior", 1),
-      generateImageUrl(property, "interior", 2),
-      generateImageUrl(property, "interior", 3),
-    ]
+    // Assign primary images for gallery previews
+    property.images = [
+      propertyExteriorImage,
+      propertyInteriorImage,
+      propertyBedroomImage,
+      propertyBathroomImage,
+    ].filter(Boolean);
 
-    const bedroomImages = [
-      generateImageUrl(property, "bedroom", 1),
-      generateImageUrl(property, "bedroom", 2),
-      generateImageUrl(property, "bedroom", 3),
-    ]
-
-    // Use real bathroom images for the first 10 properties
-    const bathroomImages = []
-
-    if (i <= 10) {
-      // For the first 10 properties, use our real bathroom images
-      if (i === 1) bathroomImages.push("/images/bathroom-1.jpeg")
-      else if (i === 2) bathroomImages.push("/images/bathroom-2.jpeg")
-      else if (i === 3) bathroomImages.push("/images/bathroom-3.jpeg")
-      else if (i === 4) bathroomImages.push("/images/bathroom-4.jpeg")
-      else if (i === 5) bathroomImages.push("/images/bathroom-5.jpeg")
-      else if (i === 6) bathroomImages.push("/images/bathroom-6.jpeg")
-      else if (i === 7) bathroomImages.push("/images/bathroom-7.jpeg")
-      else if (i === 8) bathroomImages.push("/images/bathroom-8.jpeg")
-      else if (i === 9) bathroomImages.push("/images/bathroom-9.jpeg")
-      else if (i === 10) bathroomImages.push("/images/bathroom-10.jpeg")
-    } else {
-      // For other properties, use generated placeholder images
-      bathroomImages.push(generateImageUrl(property, "bathroom", 1))
-      bathroomImages.push(generateImageUrl(property, "bathroom", 2))
-    }
-
-    // Select primary images (one from each category)
-    let primaryImages = []
-
-    // For the first 10 properties, include the bathroom image as the primary image
-    if (i <= 10) {
-      primaryImages = [exteriorImages[0], interiorImages[0], bedroomImages[0], bathroomImages[0]]
-    } else {
-      primaryImages = [exteriorImages[0], interiorImages[0], bedroomImages[0]]
-    }
-
-    // Add all images to the property
-    property.images = primaryImages
+    // Assign all images to their specific categories
     property.allImages = {
-      exterior: exteriorImages,
-      interior: interiorImages,
-      bedroom: bedroomImages,
-      bathroom: bathroomImages,
-    }
+      exterior: [propertyExteriorImage],
+      interior: [propertyInteriorImage],
+      bedroom: [propertyBedroomImage],
+      bathroom: [propertyBathroomImage],
+    };
 
-    // Add property features
-    property.features = {
-      hasParking: Math.random() > 0.5,
-      hasGarden: Math.random() > 0.7,
-      hasPool: Math.random() > 0.9,
-      hasBalcony: Math.random() > 0.6,
-      hasElevator: (propertyType === "Condo" || propertyType === "Co-op") && Math.random() > 0.3,
-      hasGym: (propertyType === "Condo" || propertyType === "Co-op") && Math.random() > 0.6,
-      hasDoorman: (propertyType === "Condo" || propertyType === "Co-op") && Math.random() > 0.7,
-      isRenovated: Math.random() > 0.5,
-      hasWaterView: Math.random() > 0.8,
-      hasCentralAir: Math.random() > 0.4,
-    }
-
-    // Add property to array
-    properties.push(property)
+    properties.push(property);
   }
 
-  return properties
+  return properties;
 }
