@@ -163,12 +163,35 @@ exports.listProperties = async (req, res) => {
 
     // ---- attach hero + full image list to each property ----
     const data = (props ?? []).map(p => {
-      const imgs = imagesByProp.get(p.id) ?? [];
-      const hero = imgs.length ? imgs[0].url : null; // first isPrimary/exterior/sorted image
+      const imgs = [...(imagesByProp.get(p.id) ?? [])]; // copy so we can sort in place
+
+      // rank function for desired order: exterior → bedrooms → bathrooms → others
+      const rank = (i) =>
+        i.category === 'exterior' ? 0 :
+          i.subcategory === 'bedroom' ? 1 :
+            i.subcategory === 'bathroom' ? 2 : 3;
+
+      // sort images deterministically
+      imgs.sort((a, b) =>
+        rank(a) - rank(b) ||
+        a.sortOrder - b.sortOrder ||
+        a.id - b.id
+      );
+
+      // pick hero (primary → first exterior → first image)
+      const hero =
+        imgs.find(i => i.isPrimary)?.url ??
+        imgs.find(i => i.category === 'exterior')?.url ??
+        imgs[0]?.url ??
+        null;
+
+      // if you DON'T want the hero duplicated in images[], filter it out
+      const images = hero ? imgs.filter(i => i.url !== hero) : imgs;
+
       return {
         ...p,
         heroImage: hero,
-        images: imgs
+        images
       };
     });
     const total = count ?? 0;
