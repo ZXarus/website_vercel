@@ -75,14 +75,6 @@ export default function SignInPage() {
           )}
           
           <button
-            type="button"
-            onClick={() => console.log('Test button clicked')}
-            className="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 transition mb-2"
-          >
-            Test Button
-          </button>
-          
-          <button
             type="submit"
             disabled={isLoading}
             className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
